@@ -1,7 +1,9 @@
+# Library imports (Make sure you have python installed).
 import os
 import re
 import zlib
 
+# This function decompresses the game file to get the decompressed data to start doing work.
 def decompress_game_file(input_path, output_path):
     with open(input_path, "rb") as f:
         f.seek(8)  
@@ -16,6 +18,7 @@ def decompress_game_file(input_path, output_path):
     print(f"Decompression complete ({len(decompressed_data)} bytes)")
     return True
 
+# The bootstrapper for extracting tags.
 def extract_all_tags():
     bin_filename = "decompressed_world.bin"
     output_folder = "extracted"
@@ -30,7 +33,7 @@ def extract_all_tags():
     with open(bin_filename, "rb") as f:
         data = f.read()
 
-    
+    # Hex signatures of specific areas of the save file.
     structure_sig = b'\x0A\x00\x00\x0A\x00\x04\x64\x61\x74\x61'
     player_sig = b'\x0A\x00\x00\x03\x00\x0E'
     level_sig = b'\x0A\x00\x00\x0A\x00\x04\x44\x61\x74\x61'
@@ -91,7 +94,7 @@ def extract_all_tags():
                 features_offset = start_index + len(structure_sig) + 3
                 scan_limit = min(len(tag_data), 256)
                 for j in range(features_offset, scan_limit):
-                    if tag_data[j] == 0x0A:
+                    if tag_data[j] == 0x0A: # Tag Start
                         name_len = tag_data[j + 1] << 8 | tag_data[j + 2]
                         raw_name = tag_data[j + 3:j + 3 + name_len]
                         clean_bytes = bytes([b for b in raw_name if b > 31 and b != 127 and b != 0])
@@ -130,3 +133,4 @@ else:
 
 
 input("Press Enter to continue...")
+
